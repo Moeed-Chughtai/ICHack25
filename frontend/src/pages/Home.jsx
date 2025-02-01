@@ -1,6 +1,10 @@
 import React from "react";
+import {useNavigate} from "react-router-dom";
 
 const Home = () => {
+
+  const navigate = useNavigate();
+
   return (
     <div className="bg-gray-900 text-white min-h-screen">
       {/* Hero Section */}
@@ -12,11 +16,11 @@ const Home = () => {
             Welcome to <span className="text-blue-400">PreDictEd</span>
           </h1>
           <p className="mt-4 text-lg text-gray-300">
-          Automated analysis of youe teaching and student needs.
+            Automated analysis of youe teaching and student needs.
           </p>
-          <a href="#features" className="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white text-lg px-6 py-3 rounded-full shadow-md transition duration-300">
+          <p className="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white text-lg px-6 py-3 rounded-full shadow-md transition duration-300" onClick={() => navigate("/analysis")}>
             Get Started
-          </a>
+          </p>
         </div>
       </header>
 

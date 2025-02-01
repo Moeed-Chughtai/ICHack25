@@ -3,6 +3,8 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
+import Report from './pages/Report'
+import Analysis from './pages/Analysis'
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -16,7 +18,8 @@ function App() {
       <Navbar /> {/* Add a navbar for navigation */}
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/analytics" element={<About />} /> */}
+        <Route path="/analysis" element={<Analysis />} />
+        <Route path="/report" element={<Report />} />
         {/* <Route path="/" element={<Contact />} /> */}
       </Routes>
     </Router>
