@@ -1,0 +1,6 @@
+opencv-python
+mediapipe
+numpy
+ultralytics
+deep_sort_realtime
+face_recognition
