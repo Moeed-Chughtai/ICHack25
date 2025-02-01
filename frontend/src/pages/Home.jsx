@@ -36,11 +36,11 @@ const Home = () => {
       <section id="features" className="py-20 px-6 bg-gray-800 w-full">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Our Features</h2>
-          <p className="text-gray-300 mb-10">Automated classroom and student insights</p>
+          {/* <p className="text-gray-300 mb-10">Automated classroom and student insights</p> */}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard title="🚀 Real-time Analysis" description="Get real-time insights on classroom interactions." />
-            <FeatureCard title="🔐 d" description="Eddf" />
+            <FeatureCard title="🔐 Audio Detection" description="Get insight on classroom interactions." />
             <FeatureCard title="🌎 AI-Powered" description="Automated analysis to enhance learning experiences." />
           </div>
         </div>
