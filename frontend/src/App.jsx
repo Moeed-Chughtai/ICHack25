@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Report from './pages/Report'
 import Analysis from './pages/Analysis'
+import Library from './pages/Library'
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/analysis" element={<Analysis />} />
         <Route path="/report" element={<Report />} />
+        <Route path="/library" element={<Library />} />
         {/* <Route path="/" element={<Contact />} /> */}
       </Routes>
     </Router>

@@ -1,13 +1,28 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation , useNavigate } from "react-router-dom";
+import sessionData from "../data/Sessions.json"; // Import the JSON data
 
 const Report = () => {
   const location = useLocation();
-  const initialData = location.state || { title: "", subject: "" }; // Default values
+  const navigate = useNavigate();
 
+  const initialData = location.state || { title: "", subject: "" }; // Default values
+  
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+  };
+
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toTimeString().split(" ")[0].slice(0, 5); // Format: HH:MM
+  };
+  
   const [formData, setFormData] = useState({
     title: initialData.title,
     subject: initialData.subject,
+    date: getCurrentDate(),
+    time: getCurrentTime()
   });
 
   const handleChange = (e) => {
@@ -16,8 +31,14 @@ const Report = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Submitted Report:", formData);
+    
+    // Add new report to the JSON data
+    const newSessionId = Object.keys(sessionData.sessions).length + 1;
+    sessionData.sessions[newSessionId] = formData;
+    
+    console.log("Updated Sessions:", sessionData);
     alert("Report Submitted Successfully!");
+    navigate("/library");
   };
 
   return (
@@ -43,6 +64,30 @@ const Report = () => {
             type="text"
             name="subject"
             value={formData.subject}
+            onChange={handleChange}
+            className="w-full p-2 bg-gray-700 text-white rounded-md"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-300">Date</label>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="w-full p-2 bg-gray-700 text-white rounded-md"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-300">Time</label>
+          <input
+            type="time"
+            name="time"
+            value={formData.time}
             onChange={handleChange}
             className="w-full p-2 bg-gray-700 text-white rounded-md"
             required

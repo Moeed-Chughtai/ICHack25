@@ -1,0 +1,22 @@
+{"sessions":
+{
+    "1": {
+        "title": "Math Session",
+        "subject": "Math",
+        "date": "2021-01-01",
+        "time": "10:00"
+    },
+    "2": {
+        "title": "Physics Session",
+        "subject": "Physics",
+        "date": "2021-01-02",
+        "time": "11:00"
+    },
+    "3": {
+        "title": "Chemistry",
+        "subject": "Chemistry",
+        "date": "2021-01-03",
+        "time": "12:00"
+    }
+}
+}
