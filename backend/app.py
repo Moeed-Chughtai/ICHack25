@@ -4,8 +4,13 @@ from flask_cors import CORS
 import json
 import os
 
+
+
+
 app = Flask(__name__)
 CORS(app)
+
+
 
 @app.route('/api/sentiment-chart', methods=['GET'])
 def sentiment_chart():
@@ -40,6 +45,40 @@ def submit():
 
     return jsonify({"message": "Session added successfully", "sessions": sessions}), 201
 
+
+
+
+
+
+
+from confidence_measurement.gcpstt import analyze_speech
+import os
+
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the upload directory exists
+
+@app.route('/api/analyze-speech', methods=['POST'])
+def analyze_speech_endpoint():
+    """
+    Receives an audio file from the frontend, saves it temporarily,
+    and processes it with the `analyze_speech` function.
+    """
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    # Save the file temporarily
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(file_path)
+
+    # Process the audio file using the analyze_speech function
+    result = analyze_speech(file_path, cleanup=True)
+
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
