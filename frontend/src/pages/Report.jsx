@@ -29,16 +29,30 @@ const Report = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Add new report to the JSON data
-    const newSessionId = Object.keys(sessionData.sessions).length + 1;
-    sessionData.sessions[newSessionId] = formData;
-    
-    console.log("Updated Sessions:", sessionData);
-    alert("Report Submitted Successfully!");
-    navigate("/library");
+    try {
+        const response = await fetch("http://localhost:5000/api/submit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to submit report");
+        }
+
+        const result = await response.json();
+        console.log("Server Response:", result);
+
+        alert("Report Submitted Successfully!");
+        navigate("/library");
+    } catch (error) {
+        console.error("Error submitting report:", error);
+        alert("Error submitting report. Please try again.");
+    }
   };
 
   return (

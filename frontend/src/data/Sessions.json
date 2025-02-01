@@ -1,22 +1,166 @@
-{"sessions":
 {
-    "1": {
-        "title": "Math Session",
-        "subject": "Math",
-        "date": "2021-01-01",
-        "time": "10:00"
-    },
-    "2": {
-        "title": "Physics Session",
-        "subject": "Physics",
-        "date": "2021-01-02",
-        "time": "11:00"
-    },
-    "3": {
-        "title": "Chemistry",
-        "subject": "Chemistry",
-        "date": "2021-01-03",
-        "time": "12:00"
+    "sessions": {
+        "1": {
+            "title": "Math Session",
+            "subject": "Math",
+            "date": "2021-01-01",
+            "time": "10:00",
+            "student_engagement": {
+                "total_students": 25,
+                "active_students": 18,
+                "passive_students": 7,
+                "participation_rate": 72.0,
+                "note_taking_percentage": 65.0
+            },
+            "sentiment_analysis": {
+                "overall_class_sentiment": "Positive",
+                "student_emotion_distribution": {
+                    "happy": 40,
+                    "neutral": 50,
+                    "confused": 6,
+                    "bored": 3,
+                    "frustrated": 1
+                },
+                "average_engagement_per_student": {
+                    "highest": "Student_12",
+                    "lowest": "Student_7"
+                },
+                "laughter_events": 5,
+                "fatigue_signs": {
+                    "yawns_detected": 3,
+                    "head_resting": 2,
+                    "distracted_students": 4
+                }
+            },
+            "audio_analysis": {
+                "teacher_speaking_time": "32 min",
+                "student_speaking_time": "13 min",
+                "average_response_delay": "1.8 sec",
+                "speech_clarity_score": 92.0
+            },
+            "movement_activity": {
+                "teacher_movement_pattern": "Moves around frequently",
+                "teacher_zone_coverage": "75% of classroom",
+                "group_work_detected": true,
+                "disruptive_events": 1
+            },
+            "session_insights": {
+                "peak_engagement_time": "10-25 min",
+                "engagement_drop_after": "35 min"
+            },
+            "recommendations": {
+                "engagement_boost": "Increase student interactions, more group work.",
+                "pacing_advice": "Keep lessons within 30-40 min for maximum engagement.",
+                "individual_attention": "Provide extra support for Student_7 and 3 other low-engagement students."
+            }
+        },
+        "2": {
+            "title": "Physics Session",
+            "subject": "Physics",
+            "date": "2021-01-02",
+            "time": "11:00",
+            "student_engagement": {
+                "total_students": 30,
+                "active_students": 22,
+                "passive_students": 8,
+                "participation_rate": 73.3,
+                "note_taking_percentage": 68.0
+            },
+            "sentiment_analysis": {
+                "overall_class_sentiment": "Neutral",
+                "student_emotion_distribution": {
+                    "happy": 35,
+                    "neutral": 55,
+                    "confused": 7,
+                    "bored": 2,
+                    "frustrated": 1
+                },
+                "average_engagement_per_student": {
+                    "highest": "Student_5",
+                    "lowest": "Student_14"
+                },
+                "laughter_events": 3,
+                "fatigue_signs": {
+                    "yawns_detected": 4,
+                    "head_resting": 3,
+                    "distracted_students": 6
+                }
+            },
+            "audio_analysis": {
+                "teacher_speaking_time": "34 min",
+                "student_speaking_time": "10 min",
+                "average_response_delay": "2.1 sec",
+                "speech_clarity_score": 88.5
+            },
+            "movement_activity": {
+                "teacher_movement_pattern": "Moderate movement",
+                "teacher_zone_coverage": "65% of classroom",
+                "group_work_detected": false,
+                "disruptive_events": 2
+            },
+            "session_insights": {
+                "peak_engagement_time": "5-20 min",
+                "engagement_drop_after": "30 min"
+            },
+            "recommendations": {
+                "engagement_boost": "Encourage more student-led discussions.",
+                "pacing_advice": "Introduce interactive elements every 20 minutes.",
+                "individual_attention": "Monitor Student_14 and other low-engagement students."
+            }
+        },
+        "3": {
+            "title": "Chemistry",
+            "subject": "Chemistry",
+            "date": "2021-01-03",
+            "time": "12:00",
+            "student_engagement": {
+                "total_students": 28,
+                "active_students": 20,
+                "passive_students": 8,
+                "participation_rate": 71.4,
+                "note_taking_percentage": 70.0
+            },
+            "sentiment_analysis": {
+                "overall_class_sentiment": "Positive",
+                "student_emotion_distribution": {
+                    "happy": 38,
+                    "neutral": 50,
+                    "confused": 5,
+                    "bored": 3,
+                    "frustrated": 2
+                },
+                "average_engagement_per_student": {
+                    "highest": "Student_3",
+                    "lowest": "Student_16"
+                },
+                "laughter_events": 6,
+                "fatigue_signs": {
+                    "yawns_detected": 2,
+                    "head_resting": 2,
+                    "distracted_students": 5
+                }
+            },
+            "audio_analysis": {
+                "teacher_speaking_time": "31 min",
+                "student_speaking_time": "14 min",
+                "average_response_delay": "1.7 sec",
+                "speech_clarity_score": 93.2
+            },
+            "movement_activity": {
+                "teacher_movement_pattern": "Highly dynamic",
+                "teacher_zone_coverage": "80% of classroom",
+                "group_work_detected": true,
+                "disruptive_events": 0
+            },
+            "session_insights": {
+                "peak_engagement_time": "10-30 min",
+                "engagement_drop_after": "40 min"
+            },
+            "recommendations": {
+                "engagement_boost": "Maintain high engagement with more interactive experiments.",
+                "pacing_advice": "Balance theoretical and practical work.",
+                "individual_attention": "Check in with Student_16 for participation encouragement."
+            }
+        }
     }
-}
 }
