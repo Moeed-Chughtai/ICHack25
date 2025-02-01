@@ -1,13 +1,13 @@
-import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-def generate_spider_chart(json_file="sentiments.json"):
-    # Load sentiment data from JSON
-    with open(json_file, "r") as file:
-        data = json.load(file)
-    
-    sentiments = data["sentiments"]
+def generate_spider_chart(sentiments):
+    """
+    Generates a spider (radar) chart based on sentiment analysis data.
+
+    :param sentiments: Dictionary containing sentiment percentages.
+    :return: Path to the saved chart image.
+    """
     labels = list(sentiments.keys())
     values = list(sentiments.values())
 
@@ -32,7 +32,7 @@ def generate_spider_chart(json_file="sentiments.json"):
 
     # Save the figure
     chart_path = "sentiment_chart.png"
-    plt.savefig(chart_path, bbox_inches='tight', dpi=100)
+    plt.savefig(chart_path, bbox_inches="tight", dpi=100)
     plt.close()
 
     return chart_path  # Return the file path for the API to access
