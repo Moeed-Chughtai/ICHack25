@@ -1,0 +1,1 @@
+// displays average movement and average sentiment
