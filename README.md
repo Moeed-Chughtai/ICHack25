@@ -1,5 +1,9 @@
 # ThinkSync ICHack25
 
+
+<img width="1204" alt="Screenshot 2025-02-02 at 06 57 39" src="https://github.com/user-attachments/assets/37bd0e07-38b0-47a2-b48b-267ae6a2eae0" />
+
+
 ## Problem
 Teachers face significant challenges in evaluating the diverse cognitive and motivational characteristics of their students. Traditional methods such as surveys, observations, and reports vary in effectiveness and often fail to provide objective, real-time insights. Studies indicate that teacher-student relationships and positive teacher behavior have a substantial impact on student engagement. However, without accurate engagement assessments, optimizing teaching methods remains difficult.
 
