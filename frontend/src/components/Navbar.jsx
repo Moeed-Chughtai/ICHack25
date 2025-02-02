@@ -5,10 +5,10 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-gray-900 text-white shadow-lg">
+    <nav className="sticky z-50 top-0 bg-gray-900 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <h1 className="text-2xl font-bold text-blue-400">ThinkSync</h1>
+        <Link to="/" className="text-2xl font-bold text-blue-400 hover:cursor-pointer">ThinkSync</Link>
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex space-x-6">
@@ -22,7 +22,7 @@ const Navbar = () => {
             <Link to="/contact" className="hover:text-blue-400 transition">Contact</Link>
           </li>
           <li>
-            <Link to="" className="hover:text-blue-400 transition">Login</Link>
+            <Link to="/login" className="hover:text-blue-400 transition">Login</Link>
           </li>
         </ul>
 

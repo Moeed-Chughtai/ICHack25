@@ -26,7 +26,7 @@ const Home = () => {
           <p className="mt-4 text-lg text-gray-200">
             Automated analysis of teaching and student needs.
           </p>
-          <p className="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white text-lg px-6 py-3 rounded-full shadow-md transition duration-300" onClick={() => navigate("/analysis")}>
+          <p className="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white text-lg px-6 py-3 rounded-full shadow-md transition duration-300 hover:cursor-pointer" onClick={() => navigate("/analysis")}>
             Get Started
           </p>
         </div>

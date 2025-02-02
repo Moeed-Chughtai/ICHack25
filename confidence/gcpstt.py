@@ -1,5 +1,5 @@
 #CURL REQUEST:
-#curl -X POST -F "video=@/Users/lv/Downloads/test.mp4" http://localhost:5001/analyze-video
+#curl -X POST -F "video=@C:/Users/muham/Documents/zoom_1_min.mp4" http://localhost:5001/analyze-video
 #IT RETURNS A JSON OBJECT WITH THE FOLLOWING FIELDS:
 
 
@@ -28,7 +28,7 @@ if not OPENAI_API_KEY:
 openai.api_key = OPENAI_API_KEY
 
 # Path to Google credentials JSON
-credentials_path = "backend/google_credentials.json"
+credentials_path = "google_credentials.json"
 if not os.path.exists(credentials_path):
     raise ValueError(f"Credentials file not found at: {credentials_path}")
 
@@ -40,6 +40,10 @@ confidence_scores = []
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
 CORS(app)
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Server is running"}), 200
 
 # Increase ALL possible limits
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
@@ -362,4 +366,4 @@ if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5001)
 
 
-#curl -X POST -F "video=@/Users/lv/Downloads/test.mp4" http://localhost:5001/analyze-video
+#curl -X POST -F "video=@C:/Users/muham/Documents/zoom_1_min.mp4" http://localhost:5001/analyze-video

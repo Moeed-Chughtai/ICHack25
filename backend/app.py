@@ -11,7 +11,9 @@ app = Flask(__name__)
 CORS(app)
 
 
-
+@app.route('/api/sentiment-chart', methods=['GET'])
+def check():
+    return jsonify({"message": "Hello, World!"})
 
 
 JSON_FILE = "../frontend/src/data/Sessions.json"

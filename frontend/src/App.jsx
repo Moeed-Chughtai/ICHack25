@@ -9,6 +9,9 @@ import Analysis from "./pages/Analysis";
 import Dashboard from "./pages/Dashboard"; // Import the Dashboard
 import Report from "./pages/Report";
 import Library from "./pages/Library";
+import Login from "./pages/Login";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -26,6 +29,10 @@ function App() {
 
         <Route path="/report" element={<Report />} />
         <Route path="/library" element={<Library />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+
       </Routes>
     </Router>
   );
