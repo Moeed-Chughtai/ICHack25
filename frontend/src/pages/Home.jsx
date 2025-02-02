@@ -6,7 +6,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center">
+    <div className="bg-gray-700 text-white min-h-screen flex flex-col items-center">
       {/* 3D Cap Positioned Above the Title */}
       <div className="relative w-full h-[150px] flex items-center justify-center">
         <Scene />
@@ -23,7 +23,7 @@ const Home = () => {
           <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight">
             Welcome to <span className="text-blue-400">ThinkSync</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-300">
+          <p className="mt-4 text-lg text-gray-200">
             Automated analysis of teaching and student needs.
           </p>
           <p className="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white text-lg px-6 py-3 rounded-full shadow-md transition duration-300" onClick={() => navigate("/analysis")}>
@@ -47,7 +47,7 @@ const Home = () => {
       </section>
 
       {/* Call to Action (Footer) */}
-      <section className="py-16 px-6 text-center bg-blue-600 w-full">
+      <section className="py-16 px-6 text-center bg-gray-700 w-full">
         <h2 className="text-4xl font-bold text-white">Join Us</h2>
         <p className="mt-3 text-gray-100">Enhance teaching experience with AI-powered tools.</p>
         <a

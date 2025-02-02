@@ -60,7 +60,7 @@ const Report = () => {
   };
 
   return (
-    <div className="bg-white text-white min-h-screen p-6 flex flex-col items-center">
+    <div className="bg-gray-700 text-white min-h-screen p-6 flex flex-col items-center">
       <form
         onSubmit={handleSubmit}
         className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-4xl"
@@ -70,13 +70,13 @@ const Report = () => {
         </h2>
 
         <div className="mb-4">
-          <label className="block text-gray-300">Title</label>
+          <label className="block text-white">Title</label>
           <input
             type="text"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="w-full p-2 bg-gray-700 text-white rounded-md"
+            className="w-full p-2 bg-gray-300 text-black rounded-md"
             required
           />
         </div>
@@ -88,7 +88,7 @@ const Report = () => {
             name="subject"
             value={formData.subject}
             onChange={handleChange}
-            className="w-full p-2 bg-gray-700 text-white rounded-md"
+            className="w-full p-2 bg-gray-300 text-black rounded-md"
             required
           />
         </div>
@@ -100,7 +100,7 @@ const Report = () => {
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full p-2 bg-gray-700 text-white rounded-md"
+            className="w-full p-2 bg-gray-300 text-black rounded-md"
             required
           />
         </div>
@@ -112,20 +112,19 @@ const Report = () => {
             name="time"
             value={formData.time}
             onChange={handleChange}
-            className="w-full p-2 bg-gray-700 text-white rounded-md"
+            className="w-full p-2 bg-gray-300 text-black rounded-md"
             required
           />
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-4">Movement Graph</h2>
-        <h2 className="text-2xl font-bold text-white mb-4">Students</h2>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition"
-        >
-          Submit Report
-        </button>
+        <div className="flex mt-8 justify-center items-center">
+          <button
+            type="submit"
+            className="w-1/3 bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition"
+          >
+            Submit Report
+          </button>
+        </div>
       </form>
     </div>
   );

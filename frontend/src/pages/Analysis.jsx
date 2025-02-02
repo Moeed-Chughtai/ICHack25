@@ -45,7 +45,7 @@ const Analysis = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center p-6">
+    <div className="bg-gray-700 text-white min-h-screen flex flex-col items-center p-6">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-4xl text-center">
         <h2 className="text-4xl font-bold text-white mb-6">Upload Video for Analysis</h2>
 
@@ -54,7 +54,7 @@ const Analysis = () => {
             type="file"
             accept="video/mp4"
             onChange={handleFileChange}
-            className="w-full p-2 bg-gray-700 text-white rounded-md mb-4"
+            className="w-full p-2 bg-gray-300 text-black rounded-md mb-4"
           />
           <button
             type="submit"

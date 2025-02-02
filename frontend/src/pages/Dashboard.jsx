@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import Papa from "papaparse";
 
 // Existing chart components (adjust paths as needed)
@@ -70,21 +71,13 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 p-4">
+    <div className="min-h-screen bg-gray-700 text-white p-6">
       <div className="max-w-7xl mx-auto py-8">
         {/* Page Title */}
-        <h1 className="text-3xl font-bold mb-4">{videoTitle} - Classroom Insights</h1>
-
-        {/* Button to create a new Report */}
-        <button
-          onClick={handleCreateReport}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-        >
-          Create Report
-        </button>
+        <h1 className="text-3xl font-bold text-center mb-6">Classroom Insights</h1>
 
         {loading ? (
-          <p>Loading data...</p>
+          <p className="text-lg font-semibold text-center">Loading data...</p>
         ) : (
           <>
             {/* VIDEO SECTION (Collapsible) */}
@@ -92,17 +85,14 @@ function Dashboard() {
               <div className="mb-8">
                 <button
                   onClick={() => setShowVideo(!showVideo)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                  className="w-full bg-gray-500 hover:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex justify-between items-center transition"
                 >
                   {showVideo ? "Hide Video" : "Show Video"}
+                  {showVideo ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                 </button>
                 {showVideo && (
                   <div className="mt-4">
-                    <video
-                      className="w-full max-w-2xl mx-auto rounded shadow"
-                      controls
-                      src="/zoom.mp4"
-                    />
+                    <video className="w-full max-w-3xl mx-auto rounded-lg shadow-lg" controls src="/zoom.mp4" />
                   </div>
                 )}
               </div>
@@ -112,25 +102,22 @@ function Dashboard() {
             <div className="mb-8">
               <button
                 onClick={() => setShowCharts(!showCharts)}
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                className="w-full bg-gray-600 hover:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex justify-between items-center transition"
               >
                 {showCharts ? "Hide Charts" : "Show Charts"}
+                {showCharts ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
               </button>
               {showCharts && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Emotions Chart */}
-                  <div className="bg-white shadow p-4 rounded">
-                    <h2 className="text-xl font-semibold mb-2">
-                      Emotion Distribution by Frame
-                    </h2>
+                  <div className="bg-white shadow-lg rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Emotion Distribution by Frame</h2>
                     <EmotionsStackedBarChart emotionData={emotionData} />
                   </div>
 
-                  {/* Movement Chart */}
-                  <div className="bg-white shadow p-4 rounded">
-                    <h2 className="text-xl font-semibold mb-2">
-                      Cumulative Movement (All Students)
-                    </h2>
+                  {/* Motion Chart */}
+                  <div className="bg-white shadow-lg rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Cumulative Movement (All Students)</h2>
                     <MultiStudentMotionLineChart motionData={motionData} />
                   </div>
                 </div>
@@ -141,23 +128,30 @@ function Dashboard() {
             <div className="mb-8">
               <button
                 onClick={() => setShowSummary(!showSummary)}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                className="w-full bg-gray-600 hover:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex justify-between items-center transition"
               >
                 {showSummary ? "Hide Student Summary" : "Show Student Summary"}
+                {showSummary ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
               </button>
               {showSummary && (
-                <div className="mt-4">
-                  <h2 className="text-2xl font-bold mb-4">Student Summaries</h2>
-                  {/* Cards + popups for each student if you want them */}
-                  <StudentSummaryCards
-                    motionData={motionData}
-                    emotionData={emotionData}
-                  />
+                <div className="mt-6">
+                  <h2 className="text-2xl text-center font-bold text-gray-200 mb-4">Student Summaries</h2>
+                  <StudentSummaryCards motionData={motionData} emotionData={emotionData} />
                 </div>
               )}
             </div>
           </>
         )}
+
+        {/* Button to create a new Report */}
+        <div className="flex mt-8 justify-center items-center">
+          <button
+            onClick={() => navigate("/report")}
+            className="w-1/3 bg-blue-600 hover:bg-blue-700 text-xl text-white font-bold py-4 px-4 rounded-lg transition shadow-lg"
+          >
+            Create Report
+          </button>
+        </div>
       </div>
     </div>
   );

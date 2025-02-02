@@ -34,7 +34,7 @@ const Library = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen p-6 flex flex-col items-center">
+    <div className="bg-gray-700 text-white min-h-screen p-6 flex flex-col items-center">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-4xl text-center mb-6">
         <h2 className="text-4xl font-bold text-white">Library</h2>
       </div>
@@ -46,7 +46,7 @@ const Library = () => {
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 bg-gray-700 text-white rounded-md mr-4"
+          className="w-full p-2 bg-gray-300 text-black rounded-md mr-4"
         />
         <button className="bg-white hover:bg-gray-200 text-black font-semibold p-3 rounded-md transition">
           Search
