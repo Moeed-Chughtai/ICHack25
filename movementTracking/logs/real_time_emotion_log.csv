@@ -1,4 +1,5 @@
 frame,student_id,emotion,emotion_duration
+<<<<<<< HEAD
 9,Richard,neutral,0.08333333333333333
 10,Richard,neutral,0.16666666666666666
 11,Richard,neutral,0.25
@@ -7599,3 +7600,5 @@ frame,student_id,emotion,emotion_duration
 324,Mario,neutral,24.74999999999992
 324,Lisa,neutral,25.24999999999991
 324,Victoria,neutral,4.333333333333335
+=======
+>>>>>>> d60c954ff35644e78a48b3cb5ade533f8fbbc496
