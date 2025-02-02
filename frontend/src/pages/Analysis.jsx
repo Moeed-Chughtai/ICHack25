@@ -6,30 +6,21 @@ const Analysis = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [videoSrc, setVideoSrc] = useState(null);
+  const [fileName, setFileName] = useState("No file chosen");
 
   // Handle file selection
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile && selectedFile.type.startsWith("video/")) {
       setFile(selectedFile);
+      setFileName(selectedFile.name);
       const videoURL = URL.createObjectURL(selectedFile);
       setVideoSrc(videoURL);
     } else {
       alert("Please upload a valid MP4 video file.");
       setFile(null);
+      setFileName("No file chosen");
       setVideoSrc(null);
-    }
-  };
-
-  // Simulate upload (or actually perform your backend upload)
-  const handleUpload = async (event) => {
-    event.preventDefault();
-    if (file) {
-      console.log("Uploaded File:", file.name);
-      alert("File uploaded successfully!");
-      // [Optional: do your actual backend upload or speech analysis here if needed]
-    } else {
-      alert("Please select a file first");
     }
   };
 
@@ -40,7 +31,6 @@ const Analysis = () => {
       return;
     }
 
-    // Optionally, you can pass the file name or other data in route state
     navigate("/dashboard", { state: { videoTitle: file.name } });
   };
 
@@ -49,26 +39,25 @@ const Analysis = () => {
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-4xl text-center">
         <h2 className="text-4xl font-bold text-white mb-6">Upload Video for Analysis</h2>
 
-        <form onSubmit={handleUpload} className="flex flex-col items-center">
-          <input
-            type="file"
-            accept="video/mp4"
-            onChange={handleFileChange}
-            className="w-full p-2 bg-gray-300 text-black rounded-md mb-4"
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold p-3 rounded-md transition"
-          >
-            Upload Video
-          </button>
+        <form className="flex flex-col items-center">
+          <label className="w-full p-2 bg-gray-300 text-black rounded-md mb-4 cursor-pointer text-center">
+            {fileName}
+            <input
+              type="file"
+              accept="video/mp4"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
         </form>
 
-        {/* Video Preview */}
+        {/* Video Preview (Centered) */}
         {videoSrc && (
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold text-white mb-2">Video Preview:</h3>
-            <video controls src={videoSrc} className="w-full max-w-lg rounded-md shadow-lg" />
+          <div className="mt-6 flex justify-center">
+            <div className="w-full max-w-lg">
+              <h3 className="text-xl font-semibold text-white mb-2">Video Preview:</h3>
+              <video controls src={videoSrc} className="w-full rounded-md shadow-lg" />
+            </div>
           </div>
         )}
       </div>

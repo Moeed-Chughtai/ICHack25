@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load the motion log CSV file
-csv_filename = 'real_time_motion_log.csv'
+csv_filename = './logs/real_time_motion_log.csv'
 data = pd.read_csv(csv_filename)
 
 # Convert cumulative movement to per-frame movement
