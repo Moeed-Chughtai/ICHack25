@@ -14,10 +14,10 @@ const Home = () => {
 
       {/* Hero Section */}
       <header className="relative flex flex-col items-center text-center px-6 py-20">
-        <div
+        {/* <div
           className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{ backgroundImage: `url('https://source.unsplash.com/random/1920x1080?technology')` }}
-        ></div>
+        ></div> */}
 
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight">

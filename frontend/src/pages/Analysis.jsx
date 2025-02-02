@@ -31,7 +31,7 @@ const Analysis = () => {
       return;
     }
 
-    navigate("/dashboard", { state: { videoTitle: file.name } });
+    navigate("/dashboard", { state: { videoTitle: file.name, videoFile: file }  });
   };
 
   return (
