@@ -1,25 +1,18 @@
-#CURL REQUEST:
-#curl -X POST -F "video=@C:/Users/muham/Documents/zoom_1_min.mp4" http://localhost:5001/analyze-video
-#IT RETURNS A JSON OBJECT WITH THE FOLLOWING FIELDS:
-
-
+from google.cloud import speech_v1
 import os
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
-import openai
-from flask_cors import CORS
-from werkzeug.middleware.proxy_fix import ProxyFix
 from google.cloud import speech_v1p1beta1
-from datetime import datetime
 import sounddevice as sd
 from scipy.io.wavfile import write
+import tempfile
 import numpy as np
+from dotenv import load_dotenv
+from google.api_core import client_options
+from datetime import datetime
+import keyboard
 import threading
-from moviepy.editor import VideoFileClip
+import openai
 
-# Load environment variables from .env
-load_dotenv()
+load_dotenv()  # Load environment variables from .env file
 
 # Configure OpenAI
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -27,185 +20,54 @@ if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY not found in environment variables")
 openai.api_key = OPENAI_API_KEY
 
-# Path to Google credentials JSON
-credentials_path = "google_credentials.json"
+# Use credentials file directly
+credentials_path = "./google_credentials.json"
 if not os.path.exists(credentials_path):
-    raise ValueError(f"Credentials file not found at: {credentials_path}")
+    raise ValueError("Credentials file not found at: " + credentials_path)
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
 
-# Global list to store confidence scores (if needed later)
+# Global list to store confidence scores
 confidence_scores = []
-
-app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
-CORS(app)
-
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "Server is running"}), 200
-
-# Increase ALL possible limits
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
-app.config['MAX_FILE_SIZE'] = 100 * 1024 * 1024      # 100MB
-app.config['REQUEST_SIZE_LIMIT'] = 100 * 1024 * 1024  # 100MB
-
-# Ensure upload folder exists with proper permissions
-UPLOAD_FOLDER = 'uploads'
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER, mode=0o777)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# Define allowed file extensions
-ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'wmv', 'mkv'}
-
-# At the top with other configs
-CHUNK_SIZE = 8 * 1024 * 1024  # 8MB chunks
-MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB total
-
-def allowed_file(filename):
-    """Check if the uploaded file has an allowed extension."""
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route('/analyze-video', methods=['POST'])
-def analyze_video_endpoint():
-    """Endpoint to handle video upload and analysis."""
-    print("=== DEBUG INFO ===")
-    print(f"Content Length: {request.content_length}")
-    print(f"Content Type: {request.content_type}")
-    print(f"Request Headers: {dict(request.headers)}")
-    print(f"Request Files: {request.files}")
-    print(f"App Config: {app.config}")
-    print("================")
-
-    try:
-        # Check content length early
-        content_length = request.content_length
-        if content_length:
-            print(f"Content Length: {content_length} bytes")
-            print(f"Max File Size: {MAX_FILE_SIZE} bytes")
-            if content_length > MAX_FILE_SIZE:
-                print(f"Content length {content_length} exceeds max file size {MAX_FILE_SIZE}")
-                return jsonify({
-                    'success': False,
-                    'error': f'File too large. Maximum size is {MAX_FILE_SIZE / (1024 * 1024)}MB'
-                }), 413
-
-        if 'video' not in request.files:
-            return jsonify({'success': False, 'error': 'No video file uploaded'}), 400
-
-        video_file = request.files['video']
-        if video_file.filename == '':
-            return jsonify({'success': False, 'error': 'No selected file'}), 400
-
-        filename = secure_filename(video_file.filename)
-        video_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-        # Ensure the upload folder exists
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-        print(f"2. Saving file to: {video_path}")
-        # Save file in chunks
-        with open(video_path, 'wb') as f:
-            while True:
-                chunk = video_file.read(CHUNK_SIZE)
-                if not chunk:
-                    break
-                f.write(chunk)
-
-        print("3. File saved successfully")
-
-        try:
-            print("4. Starting video processing")
-            results = process_video(video_path)
-            
-            if isinstance(results, dict) and 'error' in results:
-                return jsonify({
-                    'success': False,
-                    'error': results['error']
-                }), 400
-
-            return jsonify({
-                'success': True,
-                'results': results
-            })
-
-        except MemoryError:
-            print("Memory error during processing")
-            return jsonify({
-                'success': False,
-                'error': 'Video file too large to process. Please try a smaller file.'
-            }), 413
-
-        except Exception as e:
-            print(f"Processing error: {str(e)}")
-            return jsonify({
-                'success': False,
-                'error': str(e)
-            }), 500
-
-        finally:
-            # Clean up the uploaded file
-            try:
-                if os.path.exists(video_path):
-                    os.remove(video_path)
-                    print("6. Cleaned up video file")
-            except Exception as e:
-                print(f"Error cleaning up file: {str(e)}")
-
-    except Exception as e:
-        error_msg = str(e)
-        print(f"Final error: {error_msg}")
-        return jsonify({
-            'success': False,
-            'error': error_msg
-        }), 500
-
 
 def record_audio():
     # Flag to control recording
     recording_flag = threading.Event()
     recorded_data = []
     sample_rate = 44100
-
+    
     def callback(indata, frames, time, status):
-        if status:
-            print(f"Recording status: {status}")
-        print(f"Recording callback triggered with {frames} frames")
         if recording_flag.is_set():
             recorded_data.append(indata.copy())
-
+    
     print("Press Enter to start recording...")
     input()  # Wait for Enter key
-
+    
     recording_flag.set()
     print("Recording... Press Enter again to stop")
-
+    
     # Start recording stream
     with sd.InputStream(samplerate=sample_rate, channels=1, callback=callback):
         input()  # Wait for Enter key
         recording_flag.clear()
-
+    
     print("Recording finished")
-
+    
     if not recorded_data:
         print("No data recorded!")
         return None
-
+    
     # Combine all recorded chunks
     recording = np.concatenate(recorded_data, axis=0)
-
+    
     # Normalize and convert to int16 for proper WAV format
     recording = np.int16(recording * 32767)
-
+    
     # Create a filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     audio_path = os.path.join("backend", f"recording_{timestamp}.wav")
-
-    # Ensure the backend folder exists
-    os.makedirs("backend", exist_ok=True)
-
+    
+    # Save the WAV file
     print(f"Saving audio to: {audio_path}")
     write(audio_path, sample_rate, recording)
     print(f"Audio file size: {os.path.getsize(audio_path)} bytes")
@@ -214,156 +76,134 @@ def record_audio():
 def analyze_speech(audio_file_path, cleanup=True):
     client = speech_v1p1beta1.SpeechClient()
 
-    print(f"Analyzing speech for file: {audio_file_path}")
     with open(audio_file_path, 'rb') as audio_file:
         content = audio_file.read()
 
-    print(f"Audio file loaded, size: {len(content)} bytes")
+    audio = speech_v1p1beta1.RecognitionAudio(content=content)
+    config = speech_v1p1beta1.RecognitionConfig(
+        encoding=speech_v1p1beta1.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=44100,
+        language_code="en-US",
+        enable_word_confidence=True,
+        enable_word_time_offsets=True
+    )
 
-    # Split audio into 10MB chunks
-    CHUNK_SIZE = 10 * 1024 * 1024  # 10MB
-    chunks = [content[i:i + CHUNK_SIZE] for i in range(0, len(content), CHUNK_SIZE)]
-    print(f"Split audio into {len(chunks)} chunks")
+    response = client.recognize(config=config, audio=audio)
+    confidence_score = None
 
-    all_results = []
-    for i, chunk in enumerate(chunks):
-        print(f"Processing chunk {i+1} of {len(chunks)}")
-        audio = speech_v1p1beta1.RecognitionAudio(content=chunk)
-        config = speech_v1p1beta1.RecognitionConfig(
-            encoding=speech_v1p1beta1.RecognitionConfig.AudioEncoding.LINEAR16,
-            sample_rate_hertz=44100,
-            language_code="en-US",
-            enable_word_confidence=True,
-            enable_word_time_offsets=True,
-            # Add these options to improve recognition
-            use_enhanced=True,
-            model='video',  # Specifically for video content
-            audio_channel_count=2  # Stereo audio
-        )
+    for result in response.results:
+        transcript = result.alternatives[0].transcript
+        print("\nTranscript:", transcript)
+        
+        # Speech analysis
+        words = result.alternatives[0].words
+        
+        # Speech rate calculation
+        wpm = 0
+        if len(words) > 1:
+            duration = words[-1].end_time.total_seconds() - words[0].start_time.total_seconds()
+            wpm = (len(words) / duration) * 60
+            print(f"Speaking rate: {wpm:.2f} words per minute")
+
+        # Confidence and hesitation analysis
+        hesitations = 0
+        avg_confidence = 0
+        low_confidence_words = []
+        word_timings = []
+        
+        for word in words:
+            if word.confidence < 0.8:
+                hesitations += 1
+                low_confidence_words.append(f"{word.word} ({word.confidence:.2%})")
+            avg_confidence += word.confidence
+            
+            word_duration = word.end_time.total_seconds() - word.start_time.total_seconds()
+            word_timings.append(f"{word.word}: {word_duration:.2f}s")
+
+        avg_confidence = avg_confidence / len(words) if words else 0
+        
+        # Calculate pauses between words
+        pauses = []
+        for i in range(len(words) - 1):
+            pause_duration = words[i + 1].start_time.total_seconds() - words[i].end_time.total_seconds()
+            if pause_duration > 0.5:
+                pauses.append(f"After '{words[i].word}': {pause_duration:.2f}s")
+
+        print(f"Hesitations detected: {hesitations}")
+        print(f"Average confidence: {avg_confidence:.2%}")
+
+        # Create analysis prompt
+        chatgpt_prompt = f"""Based on these speech parameters, output only a number from 0 to 100. This is an EXTREMELY STRICT scoring system.
+
+Start with 100 points and apply ALL of these harsh penalties:
+
+MAJOR PENALTIES:
+- Average accuracy below 0.95: -40 points
+- Average accuracy below 0.90: -60 points
+- Average accuracy below 0.85: -80 points
+- Speaking rate outside 130-150 wpm: -5 points per 5 wpm deviation
+- Each hesitation: -15 points
+- Each pause >0.5s: -12 points
+- Each low confidence word (<0.8): -8 points
+
+ADDITIONAL PENALTIES:
+- More than 2 hesitations in any 30-second period: -20 points
+- Any single word with confidence <0.7: -10 points per word
+- Any pause >1.0s: additional -15 points per pause
+- Irregular speaking pace (high variance in word timing): -25 points
+
+Final score cannot exceed these STRICT maximums based on performance:
+- Maximum 95: Perfect delivery (zero hesitations, 135-145 wpm, 98%+ accuracy)
+- Maximum 80: 1 hesitation or any accuracy below 95%
+- Maximum 60: 2-3 hesitations or any accuracy below 90%
+- Maximum 40: 4+ hesitations or any accuracy below 85%
+- Maximum 20: 6+ hesitations or any accuracy below 80%
+
+Speech Metrics:
+- Average accuracy score: {avg_confidence:.2%}
+- Speaking rate: {wpm:.2f} words per minute
+- Hesitations: {hesitations}
+- Words: {len(words)}
+- Low confidence words: {len(low_confidence_words)}
+- Significant pauses: {len(pauses)}
+
+Transcript: "{transcript}"
+
+IMPORTANT: Be extremely strict! Most speeches should score below 50. Output format: Just the number (0-100)"""
+
+        print("\nRequesting confidence score...")
 
         try:
-            print(f"Sending chunk {i+1} to Google Speech-to-Text API")
-            response = client.recognize(config=config, audio=audio)
-            print(f"Response received for chunk {i+1}")
-            print(f"Results in response: {len(response.results)}")
+            response = openai.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a speech analyst. Respond only with a number from 0 to 100 representing speaker confidence."},
+                    {"role": "user", "content": chatgpt_prompt}
+                ]
+            )
+            confidence_score = int(response.choices[0].message.content.strip())
+            confidence_scores.append(confidence_score)
+            print(f"\nConfidence Score: {confidence_score}/100")
             
-            if response.results:
-                all_results.extend(response.results)
-                print(f"Chunk {i+1} processed successfully with {len(response.results)} results")
-            else:
-                print(f"No speech detected in chunk {i+1}")
-                
+            if len(confidence_scores) > 0:
+                avg_score = sum(confidence_scores) / len(confidence_scores)
+                print(f"Average Confidence Score: {avg_score:.2f}/100")
         except Exception as e:
-            print(f"Error processing chunk {i+1}: {str(e)}")
-            continue
+            print(f"Error getting confidence score: {str(e)}")
 
-    print(f"Total results collected: {len(all_results)}")
+    if cleanup:
+        os.unlink(audio_file_path)
 
-    # Process all results
-    transcript = ""
-    words = []
-    
-    for result in all_results:
-        if len(result.alternatives) > 0:
-            alternative = result.alternatives[0]
-            print(f"Found transcript: {alternative.transcript}")
-            transcript += alternative.transcript + " "
-            words.extend(alternative.words)
-
-    # Calculate metrics
-    if words:
-        print(f"Total words detected: {len(words)}")
-        duration = words[-1].end_time.total_seconds() - words[0].start_time.total_seconds()
-        wpm = (len(words) / duration) * 60 if duration > 0 else 0
-        avg_confidence = sum(word.confidence for word in words) / len(words)
-        
-        return {
-            'transcript': transcript.strip(),
-            'wpm': wpm,
-            'confidence': avg_confidence,
-            'duration': duration,
-            'word_count': len(words)
-        }
-    else:
-        print("No words detected in any chunks")
-        return {'error': 'No speech detected in the audio. Please ensure the video contains clear audio.'}
-
-def extract_audio_from_video(video_path):
-    """Extract audio from video file and save as WAV."""
-    try:
-        # Create a filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        audio_path = os.path.join("backend", f"audio_{timestamp}.wav")
-
-        # Ensure 'backend' folder exists
-        os.makedirs("backend", exist_ok=True)
-
-        print(f"Extracting audio from: {video_path}")
-        video = VideoFileClip(video_path)
-        audio = video.audio
-
-        print(f"Video duration: {video.duration:.2f}s, Audio FPS: {audio.fps}")
-        
-        # Write audio to WAV file
-        audio.write_audiofile(audio_path)
-
-        # Close video & audio to free resources
-        video.close()
-        audio.close()
-
-        print(f"Audio extracted to: {audio_path}")
-        return audio_path
-
-    except Exception as e:
-        print(f"Error extracting audio: {str(e)}")
-        return None
-
-def process_video(video_path):
-    """Process a video file for speech analysis."""
-    try:
-        print("a. Starting audio extraction")
-        audio_path = extract_audio_from_video(video_path)
-        if not audio_path:
-            print("b. Audio extraction failed")
-            return None
-
-        print(f"Audio path is: {audio_path}")
-        print("c. Starting speech analysis")
-        speech_results = analyze_speech(audio_path)
-        print("d. Speech analysis complete")
-
-        if 'error' in speech_results:
-            return speech_results
-
-        # Process transcript with ChatGPT
-        print("e. Starting ChatGPT analysis")
-        transcript = speech_results['transcript']
-        
-        response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an expert speech analyzer. Analyze the following transcript for key points, sentiment, and speaking style."},
-                {"role": "user", "content": f"Analyze this transcript: {transcript}"}
-            ],
-            temperature=0.7,
-            max_tokens=500
-        )
-
-        # Combine speech-to-text and ChatGPT results
-        analysis = response.choices[0].message.content
-        
-        return {
-            **speech_results,  # Include original speech analysis
-            'ai_analysis': analysis  # Add ChatGPT analysis
-        }
-
-    except Exception as e:
-        print(f"Process video error: {str(e)}")
-        return {"error": str(e)}
-
+    return {
+        "transcript": transcript if 'transcript' in locals() else None,
+        "confidence_score": confidence_score,
+        "average_confidence_score": sum(confidence_scores) / len(confidence_scores) if confidence_scores else None,
+        "speech_rate": wpm if 'wpm' in locals() else None,
+        "hesitations": hesitations if 'hesitations' in locals() else None,
+        "duration": duration if 'duration' in locals() else None,
+        "avg_confidence": avg_confidence if 'avg_confidence' in locals() else None
+    }
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5001)
-
-
-#curl -X POST -F "video=@C:/Users/muham/Documents/zoom_1_min.mp4" http://localhost:5001/analyze-video
+    audio_file = record_audio()
+    analyze_speech(audio_file)
