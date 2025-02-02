@@ -1,0 +1,9 @@
+opencv-python
+mediapipe
+numpy
+ultralytics
+deep_sort_realtime
+deepface
+tensorflow
+keras
+tf-keras
