@@ -1,13 +1,14 @@
+// Report.jsx
 import React, { useState } from "react";
-import { useLocation , useNavigate } from "react-router-dom";
-import sessionData from "../data/Sessions.json"; // Import the JSON data
+import { useLocation, useNavigate } from "react-router-dom";
+import sessionData from "../data/Sessions.json"; // optional if needed
 
 const Report = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const initialData = location.state || { title: "", subject: "" }; // Default values
-  
+  const initialData = location.state || { title: "", subject: "" };
+
   const getCurrentDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0]; // Format: YYYY-MM-DD
@@ -17,12 +18,12 @@ const Report = () => {
     const now = new Date();
     return now.toTimeString().split(" ")[0].slice(0, 5); // Format: HH:MM
   };
-  
+
   const [formData, setFormData] = useState({
-    title: initialData.title,
-    subject: initialData.subject,
+    title: initialData.title || "",
+    subject: initialData.subject || "",
     date: getCurrentDate(),
-    time: getCurrentTime()
+    time: getCurrentTime(),
   });
 
   const handleChange = (e) => {
@@ -31,35 +32,43 @@ const Report = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-        const response = await fetch("http://localhost:5000/api/submit", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
-        });
+      // 1. (Optional) Send to your backend
+      const response = await fetch("http://localhost:5000/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to submit report");
+      }
+      const result = await response.json();
+      console.log("Server Response:", result);
 
-        if (!response.ok) {
-            throw new Error("Failed to submit report");
-        }
+      // 2. Store in local storage for the Library
+      const stored = JSON.parse(localStorage.getItem("myReports")) || [];
+      stored.push(formData);
+      localStorage.setItem("myReports", JSON.stringify(stored));
 
-        const result = await response.json();
-        console.log("Server Response:", result);
-
-        alert("Report Submitted Successfully!");
-        navigate("/library");
+      alert("Report Submitted Successfully!");
+      navigate("/library");
     } catch (error) {
-        console.error("Error submitting report:", error);
-        alert("Error submitting report. Please try again.");
+      console.error("Error submitting report:", error);
+      alert("Error submitting report. Please try again.");
     }
   };
 
   return (
     <div className="bg-white text-white min-h-screen p-6 flex flex-col items-center">
-      <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-4xl">
-        <h2 className="text-4xl font-bold text-white mb-4 text-center">Report</h2>
-        
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-4xl"
+      >
+        <h2 className="text-4xl font-bold text-white mb-4 text-center">
+          Report
+        </h2>
+
         <div className="mb-4">
           <label className="block text-gray-300">Title</label>
           <input
