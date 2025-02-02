@@ -1,0 +1,10 @@
+Flask
+Flask-Cors
+python-dotenv
+openai
+Werkzeug
+google-cloud-speech
+sounddevice
+scipy
+numpy
+moviepy
