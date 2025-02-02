@@ -154,7 +154,7 @@ const StudentSummaryCards = ({ motionData, emotionData }) => {
             }`}
             onClick={() => setSelectedStudent(student)}
           >
-            <h3 className="text-lg font-bold mb-2">
+            <h3 className="text-lg font-bold mb-2 text-black">
               Student {student.studentId}
             </h3>
             {flagged && (
@@ -162,7 +162,7 @@ const StudentSummaryCards = ({ motionData, emotionData }) => {
                 ⚠ Needs Attention
               </div>
             )}
-            <p>Cumulative: {student.maxCumulativeMovement.toFixed(2)}</p>
+            <p className="text-black">Cumulative: {student.maxCumulativeMovement.toFixed(2)}</p>
           </div>
         );
       })}
