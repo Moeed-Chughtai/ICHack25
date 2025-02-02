@@ -38,15 +38,33 @@ tracker = DeepSort(max_age=30, n_init=5)
 
 cap = cv2.VideoCapture(video_path)
 
-NUM_STUDENTS = 5
+NUM_STUDENTS = 26
 movement_dict = {}  # To store unique track IDs
 emotion_dict = defaultdict(lambda: defaultdict(float))
 
 fps = cap.get(cv2.CAP_PROP_FPS) or 30
 frame_count = 0
+record_duration_sec = 60  # Set recording duration to 30 seconds
 
 # Ensure the logs directory exists
 os.makedirs(os.path.join(base_dir, 'logs'), exist_ok=True)
+
+# Create the outputVideos directory if it does not exist.
+output_videos_dir = os.path.join(base_dir, 'outputVideos')
+os.makedirs(output_videos_dir, exist_ok=True)
+
+# Initialize the VideoWriter to save the output video.
+# Since we are resizing frames to 640x480, we use that as the frame size.
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+output_video_path = os.path.join(output_videos_dir, 'output_video.mp4')
+video_writer = cv2.VideoWriter(output_video_path, fourcc, fps, (640, 480))
+
+# A dictionary to store recognized info: 
+#   recognized_students_info[track_id] = {
+#       'name': str or None,
+#       'distance': float ('inf' if not recognized)
+#   }
+recognized_students_info = {}
 
 # Function to calculate IoU for bounding box matching (not used in this fix)
 def calculate_iou(boxA, boxB):
@@ -89,6 +107,11 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                 break
 
             frame_count += 1
+            elapsed_time_sec = frame_count / fps
+            if elapsed_time_sec > record_duration_sec:
+                print(f"Reached {record_duration_sec} seconds of recording. Stopping.")
+                break
+
             # Resize frame for processing; adjust size if needed.
             frame_resized = cv2.resize(frame, (640, 480))
             h, w, _ = frame_resized.shape
@@ -148,29 +171,69 @@ with open(csv_filename, mode='w', newline='') as csv_file:
 
                 student_id_display = f"" # Default display is track ID
 
+                # Try face recognition if we have not recognized before OR 
+                # if the stored distance is above threshold (meaning not confident).
+                # recognized_students_info.get(track_id, ...) returns a dict with default values if not found.
+                recognized_info = recognized_students_info.get(track_id, {'name': None, 'distance': float('inf')})
+                best_distance_so_far = recognized_info['distance']
+
                 if face_recognition_enabled and face_roi.size != 0:
-                    try:
-                        # Face recognition using DeepFace.find
-                        dfs = DeepFace.find(face_roi, db_path=student_images_dir, enforce_detection=False, silent=True, threshold=0.55, model_name="Facenet512", detector_backend="retinaface")
-                        #print(f"DeepFace.find result: {dfs}")
-                        if dfs: # If faces are found
-                            df = dfs[0] # Consider the first result for simplicity
-                            if not df.empty:
-                                identity = df['identity'].values[0]
-                                # Extract student ID from the image filename
-                                recognized_student_name = os.path.basename(identity).split('.')[0] # Extract name from matched image filename
-                                student_id_display = f"{recognized_student_name}" # Display student name
+                    # Only call DeepFace.find if we do NOT already have a confident recognition
+                    if recognized_info['name'] is None or best_distance_so_far >= 0.15:
+                        try:
+                            # Face recognition using DeepFace.find
+                            dfs = DeepFace.find(face_roi, 
+                                                db_path=student_images_dir, 
+                                                enforce_detection=False, 
+                                                silent=True, 
+                                                threshold=0.55, 
+                                                model_name="Facenet512", 
+                                                detector_backend="retinaface")
+                            if dfs:  # If faces are found in the DB
+                                # dfs is a list of DataFrames (one per face found). 
+                                df = dfs[0]
+                                if not df.empty:
+                                    # Sort by distance ascending to get best match in df.iloc[0]
+                                    best_dist = df['distance'].values[0]
+                                    identity = df['identity'].values[0]
+                                    
+                                    # If distance is below threshold, we consider it recognized
+                                    if best_dist < 0.55 and best_dist < best_distance_so_far:
+                                        recognized_student_name = os.path.basename(identity).split('.')[0]
+                                        recognized_students_info[track_id] = {
+                                            'name': recognized_student_name,
+                                            'distance': best_dist
+                                        }
+                                        student_id_display = recognized_student_name
+                                    else:
+                                        student_id_display = recognized_info['name'] if recognized_info['name'] else ""
+                                else:
+                                    # No match found in the DB, keep name as None
+                                    recognized_students_info[track_id] = {
+                                        'name': None,
+                                        'distance': float('inf')
+                                    }
+                                    student_id_display = ""  # or "Unrecognized"
                             else:
-                                print(f"No face match found for track ID {track_id}")
-                                student_id_display = "" # or "Unrecognized" if no match
-                        else:
-                             print(f"No face found in face_roi for track ID {track_id} during recognition attempt.")
-                             student_id_display = "" # or "Unrecognized" if no face found for recognition
-
-                    except Exception as e:
-                        print(f"Face recognition error: {e}")
-                        student_id_display = f"Unrecognized ID {track_id} (Recognition Error)" # Indicate recognition error, but still mark as unrecognized
-
+                                # No face recognized, keep name as None
+                                recognized_students_info[track_id] = {
+                                    'name': None,
+                                    'distance': float('inf')
+                                }
+                                student_id_display = ""  # or "Unrecognized"
+                        except Exception as e:
+                            print(f"Face recognition error for track ID {track_id}: {e}")
+                            recognized_students_info[track_id] = {
+                                'name': None,
+                                'distance': float('inf')
+                            }
+                            student_id_display = ""  # or "Error"
+                    else:
+                        # We already have a confident match stored
+                        student_id_display = recognized_info['name'] if recognized_info['name'] else ""
+                else:
+                    # Face recognition not enabled
+                    student_id_display = ""  # or f"{track_id}"
                 # If the face is frontal, perform emotion detection;
                 # otherwise, simply set the emotion label to "not frontal".
                 if is_face_frontal(face_roi):
@@ -188,7 +251,7 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                     except Exception as e:
                         dominant_emotion = 'unknown'
                 else:
-                    dominant_emotion = 'not frontal'
+                    dominant_emotion = 'neutral'
 
                 # Update emotion duration (in seconds) for the current track and emotion label.
                 emotion_dict[track_id][dominant_emotion] += 1 / fps
@@ -206,6 +269,8 @@ with open(csv_filename, mode='w', newline='') as csv_file:
                             (l, t - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 cv2.rectangle(frame_resized, (l, t), (r, b), (255, 0, 0), 2)
 
+            # Write the processed frame to the output video.
+            video_writer.write(frame_resized)
             # Display the frame
             cv2.imshow('Real-Time Emotion Tracking', frame_resized)
             if cv2.waitKey(int(1000 / fps)) & 0xFF == ord('q'):
@@ -213,6 +278,7 @@ with open(csv_filename, mode='w', newline='') as csv_file:
 
     finally:
         cap.release()
+        video_writer.release()
         cv2.destroyAllWindows()
 
 # Summary Report
