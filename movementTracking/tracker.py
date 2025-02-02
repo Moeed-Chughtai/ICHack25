@@ -42,7 +42,8 @@ NUM_STUDENTS = 26
 movement_dict = {}  # To store unique track IDs
 emotion_dict = defaultdict(lambda: defaultdict(float))
 
-fps = cap.get(cv2.CAP_PROP_FPS) or 30
+#fps = cap.get(cv2.CAP_PROP_FPS) or 30
+fps = 12
 frame_count = 0
 record_duration_sec = 60  # Set recording duration to 30 seconds
 
